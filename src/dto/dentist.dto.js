@@ -1,26 +1,31 @@
 import { z } from "zod";
 
-//dentist 
+// Dentist Schema
 export const dentistSchema = z.object({
-    // dentist_id: z.int(),
-    email: z.string().email(),
-    first_name: z.string(),
+    email: z.string().email("Invalid email format"),
+    first_name: z.string().min(1, "First name is required"),
     middle_name: z.string().optional(),
     contact_number: z.string(),
-    weekly_schedule: z.string().array(),
-    // created_at: z.union([z.string().datetime(), z.date()]),
-    // updated_at: z.union([z.string().datetime(), z.date()]),
+    weekly_schedule: z
+        .array(z.string().min(1))
+        .nonempty("Weekly schedule must have at least one entry"),
 }).strip();
 
-//dentist info
-export const dentist_info = z.object({
-    // dentist_info_id: z.int(),
-    dentist_id: z.int(),
-    university: z.string(),
-    year_of_study: z.int(),
-    specialties: z.string().array(),
-});
+// Dentist Info Schema
+export const dentistInfoSchema = z.object({
+    dentist_id: z.number().int().positive("Invalid dentist ID"),
+    university: z.string().min(1, "University is required"),
+    year_of_study: z
+        .number()
+        .int()
+        .min(1, "Year must be at least 1")
+        .max(10, "Year must be reasonable"),
+    specialties: z
+        .array(z.string().min(1))
+        .nonempty("At least one specialty is required"),
+}).strip();
 
 
-//we din't included the dto export for typing. 
-// Since this is not ts
+
+// //we din't included the dto export for typing. 
+// // Since this is not ts
