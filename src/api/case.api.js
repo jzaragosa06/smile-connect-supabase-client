@@ -1,11 +1,12 @@
 import { supabase } from "../configs/supabase-client";
 import { caseLeadSchema, caseProgressSchema } from "../dto/case.dto";
+import { stringifyObject } from "../utility/strings";
 
 //api for case lead
 export const addCaseLead = async (caseLead) => {
     const parsedCaseLead = caseLeadSchema.safeParse(caseLead);
 
-    if (!parsedCaseLead.success) throw new Error(parsedCaseLead.error.issues);
+    if (!parsedCaseLead.success) throw new Error(stringifyObject(parsedCaseLead.error.issues));
 
     const { data, error } = await supabase
         .from("case_leads")
@@ -19,7 +20,7 @@ export const addCaseLead = async (caseLead) => {
 export const updateCaseLead = async (case_lead_id, caseLead) => {
     const parsedCaseLead = caseLeadSchema.safeParse(caseLead);
 
-    if (!parsedCaseLead.success) throw new Error(parsedCaseLead.error.issues);
+    if (!parsedCaseLead.success) throw new Error(stringifyObject(parsedCaseLead.error.issues));
 
     const { data, error } = await supabase
         .from("case_leads")
@@ -60,6 +61,7 @@ export const getCaseLead = async (case_lead_id) => {
         .from("case_leads")
         .select("*")
         .eq("case_lead_id", case_lead_id)
+        .single();
 
     if (error) throw error;
     return data;
@@ -69,7 +71,7 @@ export const getCaseLead = async (case_lead_id) => {
 export const addCaseProgress = async (caseProgress) => {
     const parsedCaseProgress = caseProgressSchema.safeParse(caseProgress);
 
-    if (!parsedCaseProgress.success) throw new Error(parsedCaseProgress.error.issues);
+    if (!parsedCaseProgress.success) throw new Error(stringifyObject(parsedCaseProgress.error.issues));
 
     const { data, error } = await supabase
         .from("case_progress")
@@ -83,7 +85,7 @@ export const addCaseProgress = async (caseProgress) => {
 export const updateCaseProgress = async (case_progress_id, caseProgress) => {
     const parsedCaseProgress = caseProgressSchema.safeParse(caseProgress);
 
-    if (!parsedCaseProgress.success) throw new Error(parsedCaseProgress.error.issues);
+    if (!parsedCaseProgress.success) throw new Error(stringifyObject(parsedCaseProgress.error.issues));
 
 
     const { data, error } = await supabase

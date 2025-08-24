@@ -1,10 +1,11 @@
 import { supabase } from "../configs/supabase-client";
 import { patientSchema } from "../dto/patient.dto";
+import { stringifyObject } from "../utility/strings";
 
 export const addPatient = async (patient) => {
     const parsedPatient = patientSchema.safeParse(patient);
 
-    if (!parsedPatient.success) throw new Error(parsedPatient.error.issues);
+    if (!parsedPatient.success) throw new Error(stringifyObject(parsedPatient.error.issues));
 
     const { data, error } = await supabase
         .from("patients")
@@ -19,7 +20,7 @@ export const addPatient = async (patient) => {
 export const updatePatient = async (patient_id, patient) => {
     const parsedPatient = patientSchema.safeParse(patient);
 
-    if (!parsedPatient.success) throw new Error(parsedPatient.error.issues);
+    if (!parsedPatient.success) throw new Error(stringifyObject(parsedPatient.error.issues));
 
     const { data, error } = await supabase
         .from("patients")
@@ -57,7 +58,8 @@ export const deletePatient = async (patient_id) => {
     const { data, error } = await supabase
         .from("patients")
         .delete()
-        .eq("patient_id", patient_id);
+        .eq("patient_id", patient_id)
+        .select();
 
     if (error) throw error;
     return data;

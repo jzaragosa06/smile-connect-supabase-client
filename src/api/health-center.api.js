@@ -1,10 +1,11 @@
 import { supabase } from "../configs/supabase-client";
 import { healthCenterSchema } from "../dto/health-center.dto";
+import { stringifyObject } from "../utility/strings";
 
 export const addHealthCenter = async (healthCenter) => {
     const parsedHealthCenter = healthCenterSchema.safeParse(healthCenter);
 
-    if (!parsedHealthCenter.success) throw new Error(parsedHealthCenter.error.issues);
+    if (!parsedHealthCenter.success) throw new Error(stringifyObject(parsedHealthCenter.error.issues));
 
     const { data, error } = await supabase
         .from("health_centers")
@@ -18,7 +19,7 @@ export const addHealthCenter = async (healthCenter) => {
 export const updateHealthCenter = async (health_center_id, healthCenter) => {
     const parsedHealthCenter = healthCenterSchema.safeParse(healthCenter);
 
-    if (!parsedHealthCenter.success) throw new Error(parsedHealthCenter.error.issues);
+    if (!parsedHealthCenter.success) throw new Error(stringifyObject(parsedHealthCenter.error.issues));
 
     const { data, error } = await supabase
         .from("health_centers")
@@ -44,7 +45,7 @@ export const deleteHealthCenter = async (health_center_id) => {
 };
 
 
-export const getHealCenters = async () => {
+export const getHealthCenters = async () => {
     const { data, error } = await supabase
         .from("health_centers")
         .select();
@@ -53,7 +54,7 @@ export const getHealCenters = async () => {
     return data;
 };
 
-export const getHealCenter = async (health_center_id) => {
+export const getHealthCenter = async (health_center_id) => {
     const { data, error } = await supabase
         .from("health_centers")
         .select()

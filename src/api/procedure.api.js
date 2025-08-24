@@ -1,11 +1,12 @@
 import { supabase } from "../configs/supabase-client";
 import { procedureSchema, procedureToCaseLeadMatchSchema } from "../dto/procedure.dto";
+import { stringifyObject } from "../utility/strings";
 
 // procedure api
 export const addProcedure = async (procedure) => {
     const parsedProcedure = procedureSchema.safeParse(procedure);
 
-    if (!parsedProcedure.success) throw new Error(parsedProcedure.error.issues);
+    if (!parsedProcedure.success) throw new Error(stringifyObject(parsedProcedure.error.issues));
 
     const { data, error } = await supabase
         .from("procedures")
@@ -19,7 +20,7 @@ export const addProcedure = async (procedure) => {
 export const updateProcedure = async (procedure_id, procedure) => {
     const parsedProcedure = procedureSchema.safeParse(procedure);
 
-    if (!parsedProcedure.success) throw new Error(parsedProcedure.error.issues);
+    if (!parsedProcedure.success) throw new Error(stringifyObject(parsedProcedure.error.issues));
 
     const { data, error } = await supabase
         .from("procedures")
@@ -67,7 +68,7 @@ export const getProcedure = async (procedure_id) => {
 export const addMatch = async (match) => {
     const parsedMatch = procedureToCaseLeadMatchSchema.safeParse(match);
 
-    if (!parsedMatch.success) throw new Error(parsedMatch.error.issues);
+    if (!parsedMatch.success) throw new Error(stringifyObject(parsedMatch.error.issues));
 
     const { data, error } = await supabase
         .from("procedure_to_case_lead_matches")
@@ -81,7 +82,7 @@ export const addMatch = async (match) => {
 export const updateMatch = async (match_id, match) => {
     const parsedMatch = procedureToCaseLeadMatchSchema.safeParse(match);
 
-    if (!parsedMatch.success) throw new Error(parsedMatch.error.issues);
+    if (!parsedMatch.success) throw new Error(stringifyObject(parsedMatch.error.issues));
 
     const { data, error } = await supabase
         .from("procedure_to_case_lead_matches")
