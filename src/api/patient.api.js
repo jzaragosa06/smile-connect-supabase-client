@@ -32,27 +32,59 @@ export const updatePatient = async (patient_id, patient) => {
     return data;
 };
 
-
 export const getPatients = async () => {
     const { data, error } = await supabase
         .from("patients")
-        .select("*");
+        .select(`
+            *,
+            health_centers(
+                health_center_id,
+                name,
+                address,
+                municipality,
+                province
+            )
+        `);
 
     if (error) throw error;
-    return data;
-}
-
+    return data || [];
+};
 
 export const getPatient = async (patient_id) => {
     const { data, error } = await supabase
         .from("patients")
-        .select("*")
+        .select(`
+            *,
+            health_centers(
+                health_center_id,
+                name,
+                address,
+                contact_number,
+                point_person_name,
+                municipality,
+                province
+            )
+        `)
         .eq("patient_id", patient_id)
         .single();
 
     if (error) throw error;
     return data;
 };
+
+export const getPatientsByHealthCenter = async (health_center_id) => {
+    const { data, error } = await supabase
+        .from("patients")
+        .select(`
+            *,
+            health_centers(name, municipality)
+        `)
+        .eq("health_center_id", health_center_id);
+
+    if (error) throw error;
+    return data || [];
+};
+
 
 export const deletePatient = async (patient_id) => {
     const { data, error } = await supabase

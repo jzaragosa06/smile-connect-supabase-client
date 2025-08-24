@@ -48,16 +48,16 @@ export const deleteHealthCenter = async (health_center_id) => {
 export const getHealthCenters = async () => {
     const { data, error } = await supabase
         .from("health_centers")
-        .select();
+        .select("*");
 
     if (error) throw error;
-    return data;
+    return data || [];
 };
 
 export const getHealthCenter = async (health_center_id) => {
     const { data, error } = await supabase
         .from("health_centers")
-        .select()
+        .select("*")
         .eq("health_center_id", health_center_id)
         .single();
 

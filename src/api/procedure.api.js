@@ -46,23 +46,42 @@ export const deleteProcedure = async (procedure_id) => {
 export const getProcedures = async () => {
     const { data, error } = await supabase
         .from("procedures")
-        .select("*");
+        .select(`
+            *,
+            dentists(
+                dentist_id,
+                first_name,
+                last_name,
+                email
+            )
+        `);
 
     if (error) throw error;
-    return data;
-}
+    return data || [];
+};
+
 
 
 export const getProcedure = async (procedure_id) => {
     const { data, error } = await supabase
         .from("procedures")
-        .select("*")
+        .select(`
+            *,
+            dentists(
+                dentist_id,
+                first_name,
+                last_name,
+                email,
+                contact_number
+            )
+        `)
         .eq("procedure_id", procedure_id)
         .single();
 
     if (error) throw error;
     return data;
-}
+};
+
 
 // api for procedure to case-lead-match
 export const addMatch = async (match) => {
@@ -108,19 +127,117 @@ export const deleteMatch = async (match_id) => {
 export const getMatches = async () => {
     const { data, error } = await supabase
         .from("procedure_to_case_lead_matches")
-        .select("*");
+        .select(`
+            *,
+            procedures(
+                procedure_id,
+                procedure_type,
+                procedure_date,
+                procedure_location,
+                dentists(first_name, last_name)
+            ),
+            case_leads(
+                case_lead_id,
+                title,
+                status,
+                patients(first_name, last_name)
+            ),
+            case_progress(
+                case_progress_id,
+                status,
+                appointment_date
+            )
+        `);
 
     if (error) throw error;
-    return data;
-}
+    return data || [];
+};
 
 
 export const getMatch = async (match_id) => {
     const { data, error } = await supabase
         .from("procedure_to_case_lead_matches")
-        .select("*")
+        .select(`
+            *,
+            procedures(
+                procedure_id,
+                procedure_type,
+                procedure_date,
+                procedure_location,
+                dentists(
+                    dentist_id,
+                    first_name,
+                    last_name,
+                    email
+                )
+            ),
+            case_leads(
+                case_lead_id,
+                title,
+                description,
+                status,
+                urgency,
+                patients(
+                    patient_id,
+                    first_name,
+                    last_name,
+                    contact_number
+                )
+            ),
+            case_progress(
+                case_progress_id,
+                status,
+                notes,
+                appointment_date
+            )
+        `)
         .eq("match_id", match_id)
         .single();
+
     if (error) throw error;
     return data;
-}
+};
+
+
+export const getProceduresByDentist = async (dentist_id) => {
+    const { data, error } = await supabase
+        .from("procedures")
+        .select(`
+            *,
+            dentists(first_name, last_name)
+        `)
+        .eq("dentist_id", dentist_id);
+
+    if (error) throw error;
+    return data || [];
+};
+
+export const getMatchesByProcedure = async (procedure_id) => {
+
+    const { data, error } = await supabase
+        .from("procedure_to_case_lead_matches")
+        .select(`
+            *,
+            case_leads(title, status, patients(first_name, last_name)),
+            case_progress(status, appointment_date)
+        `)
+        .eq("procedure_id", procedure_id);
+
+    if (error) throw error;
+    return data || [];
+};
+
+export const getMatchesByCaseLead = async (case_lead_id) => {
+    const { data, error } = await supabase
+        .from("procedure_to_case_lead_matches")
+        .select(`
+            *,
+            procedures(procedure_type, procedure_date, dentists(first_name, last_name)),
+            case_progress(status, appointment_date)
+        `)
+        .eq("case_lead_id", case_lead_id);
+
+    if (error) throw error;
+    return data || [];
+};
+

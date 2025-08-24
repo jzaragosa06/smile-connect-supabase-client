@@ -46,26 +46,56 @@ export const deleteCaseLead = async (case_lead_id) => {
 };
 
 export const getCaseLeads = async () => {
-
     const { data, error } = await supabase
         .from("case_leads")
-        .select("*");
+        .select(`
+            *,
+            patients(
+                patient_id,
+                first_name,
+                last_name,
+                contact_number
+            ),
+            dentists(
+                dentist_id,
+                first_name,
+                last_name,
+                email
+            )
+        `);
 
     if (error) throw error;
-    return data;
+    return data || [];
 };
 
 export const getCaseLead = async (case_lead_id) => {
-
     const { data, error } = await supabase
         .from("case_leads")
-        .select("*")
+        .select(`
+            *,
+            patients(
+                patient_id,
+                first_name,
+                last_name,
+                contact_number,
+                address,
+                health_centers(name, address)
+            ),
+            dentists(
+                dentist_id,
+                first_name,
+                last_name,
+                email,
+                contact_number
+            )
+        `)
         .eq("case_lead_id", case_lead_id)
         .single();
 
     if (error) throw error;
     return data;
 };
+
 
 // api for case progress
 export const addCaseProgress = async (caseProgress) => {
@@ -110,22 +140,38 @@ export const deleteCaseProgress = async (case_progress_id) => {
     return data;
 };
 
-export const getCaseProgresses = async () => {
 
+export const getCaseProgresses = async () => {
     const { data, error } = await supabase
         .from("case_progress")
-        .select("*");
+        .select(`
+            *,
+            dentists(
+                dentist_id,
+                first_name,
+                last_name,
+                email
+            )
+        `);
 
     if (error) throw error;
-    return data;
+    return data || [];
 };
 
 
 export const getCaseProgress = async (case_progress_id) => {
-
     const { data, error } = await supabase
         .from("case_progress")
-        .select("*")
+        .select(`
+            *,
+            dentists(
+                dentist_id,
+                first_name,
+                last_name,
+                email,
+                contact_number
+            )
+        `)
         .eq("case_progress_id", case_progress_id)
         .single();
 
@@ -134,5 +180,22 @@ export const getCaseProgress = async (case_progress_id) => {
 };
 
 
+export const getCaseProgressesByDentist = async (dentist_id) => {
+    const { data, error } = await supabase
+        .from("case_progress")
+        .select("*")
+        .eq("dentist_id", dentist_id);
 
+    if (error) throw error;
+    return data || [];
+};
 
+export const getCaseLeadsByStatus = async (status) => {
+    const { data, error } = await supabase
+        .from("case_leads")
+        .select("*")
+        .eq("status", status);
+
+    if (error) throw error;
+    return data || [];
+};

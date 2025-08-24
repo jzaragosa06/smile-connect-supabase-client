@@ -6,12 +6,19 @@ import { stringifyObject } from "../utility/strings";
 export const addDentist = async (dentist) => {
     const parsedDentist = dentistSchema.safeParse(dentist);
 
-    if (!parsedDentist.success) throw new Error(stringifyObject(parsedDentist.error.issues));
+    if (!parsedDentist.success) {
+        throw new Error(`Validation failed: ${stringifyObject(parsedDentist.error.issues)}`);
+    }
 
-    const { data, error } = await supabase.from("dentists").insert([parsedDentist.data]).select();
+    const { data, error } = await supabase
+        .from("dentists")
+        .insert([parsedDentist.data])
+        .select();
+
     if (error) throw error;
     return data;
 };
+
 
 export const addDentistInfo = async (dentistInfo) => {
     const parsedDentistInfo = dentistInfoSchema.safeParse(dentistInfo);
@@ -26,22 +33,59 @@ export const addDentistInfo = async (dentistInfo) => {
 export const getDentists = async () => {
     const { data, error } = await supabase
         .from("dentists")
-        .select("*");
+        .select(`
+            *,
+            dentist_infos(
+                dentist_info_id,
+                university,
+                year_of_study,
+                specialties
+            )
+        `);
 
     if (error) throw error;
-    return data;
-}
+    return data || [];
+};
+
+export const getActiveDentists = async () => {
+    const { data, error } = await supabase
+        .from("dentists")
+        .select(`
+            *,
+            dentist_infos(
+                dentist_info_id,
+                university,
+                year_of_study,
+                specialties
+            )
+        `)
+        .eq("status", true);
+
+    if (error) throw error;
+    return data || [];
+};
 
 export const getDentist = async (dentist_id) => {
     const { data, error } = await supabase
         .from("dentists")
-        .select("*")
+        .select(`
+            *,
+            dentist_infos(
+                dentist_info_id,
+                university,
+                year_of_study,
+                specialties
+            )
+        `)
         .eq("dentist_id", dentist_id)
         .single();
 
     if (error) throw error;
     return data;
 };
+
+
+
 
 export const updateDentist = async (dentist_id, dentist) => {
     const parsedDentist = dentistSchema.safeParse(dentist);
@@ -58,25 +102,32 @@ export const updateDentist = async (dentist_id, dentist) => {
     return data;
 };
 
+export const updateDentistInfo = async (dentist_info_id, dentistInfo) => {
+    const parsedDentistInfo = dentistInfoSchema.safeParse(dentistInfo);
+
+    if (!parsedDentistInfo.success) {
+        throw new Error(`Validation failed: ${stringifyObject(parsedDentistInfo.error.issues)}`);
+    }
+
+    const { data, error } = await supabase
+        .from("dentist_infos")
+        .update(parsedDentistInfo.data)
+        .eq("dentist_info_id", dentist_info_id)
+        .select();
+
+    if (error) throw error;
+    return data;
+};
+
 
 export const deleteDentist = async (dentist_id) => {
-    //delete the dentist first
-    const { dentist_data, dentist_error } = await supabase
+    // Delete the parent - orphaned children become invisible
+    const { data, error } = await supabase
         .from("dentists")
         .delete()
         .eq("dentist_id", dentist_id)
         .select();
 
-    if (dentist_error) throw dentist_error;
-
-    //delete dentist_info
-    const { denstistInfo_data, dentistInfo_error } = await supabase
-        .from("dentist_infos")
-        .delete()
-        .eq("dentist_id", dentist_id)
-        .select();
-
-    if (dentistInfo_error) throw dentistInfo_error;
-
-    return { dentist_data, denstistInfo_data };
-}
+    if (error) throw error;
+    return data;
+};
